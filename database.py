@@ -1,9 +1,7 @@
 import sqlite3
 from sqlite3 import Error
 
-companies=['PD','ZUO','PINS','ZM','PVTL','DOCU','CLDR','RUN']
-
-sql_create_stoks_table = """ CREATE TABLE IF NOT EXISTS %s (
+create_table_query = ''' CREATE TABLE IF NOT EXISTS %s (
                                     date text,
                                     open real,
                                     high real,
@@ -11,7 +9,8 @@ sql_create_stoks_table = """ CREATE TABLE IF NOT EXISTS %s (
                                     close real,
                                     adj_close real,
                                     volume integer
-                                ); """
+                                ); '''
+
 
 def create_connection(db_file):
     """ create a database connection to the SQLite database
@@ -40,20 +39,9 @@ def create_table(conn, create_table_sql):
     except Error as e:
         print(e)
 
-def main():
-    database = 'stocks.db'
-
-    # create a database connection
-    conn = create_connection(database)
-
-    # create tables
-    if conn is not None:
-        # create projects table
-        for c in companies:
-            create_table(conn, sql_create_stoks_table%(c))
-    else:
-        print("Error! cannot create the database connection.")
-
-
-if __name__ == '__main__':
-    main()
+def insert_data(conn, row, company):
+    insert_data_query = ''' INSERT INTO {} (date,open,high,low,close,adj_close, volume)
+                VALUES(?,?,?,?,?,?,?) '''.format(company)
+    cur = conn.cursor()
+    cur.execute(insert_data_query, row)
+    conn.commit()

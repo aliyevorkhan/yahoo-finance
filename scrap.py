@@ -2,6 +2,7 @@ import time, requests
 import pandas as pd
 import re
 from io import StringIO
+from database import *
 
 companies=['PD','ZUO','PINS','ZM','PVTL','DOCU','CLDR','RUN']
 
@@ -19,10 +20,27 @@ def add_to_database():
     pass
 
 if __name__ == '__main__':
+    database = 'stocks.db'
+
+    # create a database connection
+    conn = create_connection(database)
+
+    # create tables
+    if conn is not None:
+        # create projects table
+        for c in companies:
+            create_table(conn, create_table_query%(c))
+    else:
+        print("Error! cannot create the database connection.")
+
     for c in companies:
         print('Getting data for {0}..'.format(c))
         try:
-            print(scrap_data(c))    
+            data = scrap_data(c)
+            df = pd.DataFrame(data, columns= ['Date','Open','High', 'Low', 'Close', 'Adj_Close', 'Volume'])  
+            # Insert DataFrame to Table
+            for row in df.itertuples():
+                insert_data(conn, (row.Date, row.Open, row.High, row.Low, row.Close, row.Adj_Close, row.Volume), c)
             print('Data fetched!')
         except Exception as e:
             print('Error occurred getting the data for {0}'.format(c))
