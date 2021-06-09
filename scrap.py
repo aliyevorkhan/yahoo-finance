@@ -15,12 +15,16 @@ def scrap_data(company):
 
     return pd.read_csv(StringIO(response.text))
 
-for c in companies:
-    print('Getting data for {0}..'.format(c))
-    try:
-        print(scrap_data(c))    
-        print('Data fetched!')
-    except Exception as e:
-        print('Error occurred getting the data for {0}'.format(c))
-        print(e)
-    print('Completed!')
+def add_to_database():
+    pass
+
+if __name__ == '__main__':
+    for c in companies:
+        print('Getting data for {0}..'.format(c))
+        try:
+            print(scrap_data(c))    
+            print('Data fetched!')
+        except Exception as e:
+            print('Error occurred getting the data for {0}'.format(c))
+            print(e)
+        print('Completed!')
