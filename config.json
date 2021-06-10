@@ -1,0 +1,4 @@
+{
+    "DB_NAME": "stocks.db",
+    "COMPANIES": ["PD","ZUO","PINS","ZM","PVTL","DOCU","CLDR","RUN"]
+}

@@ -3,8 +3,10 @@ import pandas as pd
 import re
 from io import StringIO
 from database import *
+from config import Config
 
-companies=['PD','ZUO','PINS','ZM','PVTL','DOCU','CLDR','RUN']
+config_data = Config()
+# companies=['PD','ZUO','PINS','ZM','PVTL','DOCU','CLDR','RUN']
 
 def scrap_data(company):
     res = requests.get('https://finance.yahoo.com/quote/' + company + '/history')
@@ -16,24 +18,21 @@ def scrap_data(company):
 
     return pd.read_csv(StringIO(response.text))
 
-def add_to_database():
-    pass
-
 if __name__ == '__main__':
-    database = 'stocks.db'
+    # database = 'stocks.db'
 
     # create a database connection
-    conn = create_connection(database)
+    conn = create_connection(config_data.DB_NAME)
 
     # create tables
     if conn is not None:
-        # create projects table
-        for c in companies:
+        # create projects tablea
+        for c in config_data.COMPANIES:
             create_table(conn, create_table_query%(c))
     else:
         print("Error! cannot create the database connection.")
 
-    for c in companies:
+    for c in config_data.COMPANIES:
         print('Getting data for {0}..'.format(c))
         try:
             data = scrap_data(c)
@@ -46,3 +45,5 @@ if __name__ == '__main__':
             print('Error occurred getting the data for {0}'.format(c))
             print(e)
         print('Completed!')
+    
+    #service will start to serving data
