@@ -5,8 +5,13 @@ from io import StringIO
 from database import *
 from config import Config
 
+from pydantic import BaseModel
+from fastapi import FastAPI
+import uvicorn
+
+app = FastAPI()
+
 config_data = Config()
-# companies=['PD','ZUO','PINS','ZM','PVTL','DOCU','CLDR','RUN']
 
 def scrap_data(company):
     res = requests.get('https://finance.yahoo.com/quote/' + company + '/history')
@@ -19,8 +24,6 @@ def scrap_data(company):
     return pd.read_csv(StringIO(response.text))
 
 if __name__ == '__main__':
-    # database = 'stocks.db'
-
     # create a database connection
     conn = create_connection(config_data.DB_NAME)
 
@@ -36,7 +39,8 @@ if __name__ == '__main__':
         print('Getting data for {0}..'.format(c))
         try:
             data = scrap_data(c)
-            df = pd.DataFrame(data, columns= ['Date','Open','High', 'Low', 'Close', 'Adj_Close', 'Volume'])  
+            df = pd.DataFrame(data, columns= ['Date','Open','High', 'Low', 'Close', 'Adj Close', 'Volume'])  
+            df.columns = [c.replace(' ', '_') for c in df.columns]
             # Insert DataFrame to Table
             for row in df.itertuples():
                 insert_data(conn, (row.Date, row.Open, row.High, row.Low, row.Close, row.Adj_Close, row.Volume), c)
@@ -47,3 +51,13 @@ if __name__ == '__main__':
         print('Completed!')
     
     #service will start to serving data
+    @app.post("/get_stock/{company}", status_code = 200)
+    async def read_item(company):
+        company_result_dict = get_data_from_table(conn, company)
+        return company_result_dict
+    
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+    # delete database if service getting turned off
+    import os
+    os.remove(config_data.DB_NAME)
