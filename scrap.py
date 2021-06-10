@@ -51,7 +51,7 @@ if __name__ == '__main__':
         print('Completed!')
     
     #service will start to serving data
-    @app.post("/get_stock/{company}", status_code = 200)
+    @app.get("/get_stock/{company}", status_code = 200)
     async def read_item(company):
         company_result_dict = get_data_from_table(conn, company)
         return company_result_dict
