@@ -5,7 +5,6 @@ from io import StringIO
 from database import *
 from config import Config
 
-from pydantic import BaseModel
 from fastapi import FastAPI
 import uvicorn
 
